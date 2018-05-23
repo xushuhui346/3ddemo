@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>CSS 3D demo</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+        }
+        body{
+            background:url("./f.jpg");
+            background-size:cover;
+        }
+    </style>
+</head>
+<body>
+    <!-- <div id="test"></div> -->
+    <script src="https://cdn.bootcss.com/three.js/92/three.js"></script>
+    <script>
+        //构建相机
+        const camera =  new THREE.PerspectiveCamera(45,window.innerWidth/window.innerHeight,0.1,1000);
+        //构建场景 大千世界 所有的内容要放到大千世界里
+        const scene = new THREE.Scene();
+        //渲染器
+        const webGlRender = new THREE.WebGLRenderer({
+            alpha:true,
+            antialias:true
+        });
+        webGlRender.setSize(window.innerWidth,window.innerHeight);
+        webGlRender.shadowMap = true;
+        //创建地板
+        const createMesh = (geom,imageFile)=>{
+            const texture = new THREE.ImageUtils.loadTexture("./"+imageFile);
+            //开启防锯齿
+            // geom.computeVertexNormals();
+            //创建材质
+            const mat = new THREE.MeshPhongMaterial();
+            mat.map = texture;
+            const mesh = new THREE.Mesh(geom,mat);
+            return mesh;
+        }
+        const box = createMesh(new THREE.BoxGeometry(10,10,0.5),"floor.png");
+        box.position.y = -30;
+        box.position.z = -100;
+        box.rotation.x = -0.09 * Math.PI;
+        camera.lookAt(new THREE.Vector3(0,0,0));
+        //至关重要
+        scene.add(box);
+        //给大千世界一点太阳光
+        const ambiLight = new THREE.AmbientLight(0x242424);
+        scene.add(ambiLight);
+        const light = new THREE.SpotLight();
+        light.position.set(0,30,30);
+        light.intensity = 1;
+        scene.add(light);
+        // webGlRender.render(scene,camera);
+        //渲染结构塞到页面之前
+        document.body.appendChild(webGlRender.domElement);
+        render();
+        function render(){
+            requestAnimationFrame(render);
+            //优化当前动画帧
+            box.rotation.y += 0.00250 * Math.PI;
+            webGlRender.render(scene,camera);
+        }
+    </script>
+</body>
+</html>
